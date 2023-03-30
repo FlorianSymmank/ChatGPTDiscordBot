@@ -25,7 +25,9 @@ const configuration = new Configuration({
     apiKey: data.GPT_API_KEY
 });
 
-const commands = ["!npc", "magische miesmuschel"];
+const STUNDE = 60 * 60 * 1000;
+const DOPPELREIM_INTERVALL = 2 * STUNDE;
+const COMMANDS = ["!npc", "magische miesmuschel"];
 
 const openai = new OpenAIApi(configuration);
 
@@ -38,7 +40,7 @@ client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
     // is command?
-    if (commands.find(cmd => { return message.content.startsWith(cmd) })) {
+    if (COMMANDS.find(cmd => { return message.content.startsWith(cmd) })) {
 
         if (isUserExcluded(message.author.id)) {
             sendMessage(message, "NO :clown:");
@@ -119,26 +121,24 @@ async function sendMessage(message, response) {
 }
 
 
-let letzter_doppelreim = "";
-
 async function doppelreim() {
     let channel = client.channels.cache.get("832958629089902622"); // snek allgemein
 
-    if (letzter_doppelreim != "") {
-        let messages = [{ "role": "user", "content": `Gib mir 5 Wörter die sich auf ${letzter_doppelreim} reimen` }]
-        let aufloesung_doppelreim = await generateResponse(messages);
-        channel.send(aufloesung_doppelreim);
-    }
-
     let messages = [{ "role": "user", "content": "Gib mir ein zusammengesetzes Substantiv (aus maximal aus 2 Wörtern)" }]
-    letzter_doppelreim = await generateResponse(messages);
+    let response = await generateResponse(messages);
 
-    channel.send(`Hier ist dein Substantiv: ${letzter_doppelreim}`);
+    let sentMessage = await channel.send(`Hier ist dein Substantiv: ${response}`);
+
+    setTimeout(async () => {
+        let messages = [{ "role": "user", "content": `Gib mir 5 Wörter die sich auf ${response} reimen` }]
+        let aufloesung_doppelreim = await generateResponse(messages);
+        sentMessage.reply(aufloesung_doppelreim)
+    }, DOPPELREIM_INTERVALL - 2000); 
 }
 
 
 client.login(data.DISCORD_BOT_TOKEN);
-setInterval(doppelreim, 60 * 60 * 1000); // stunde
+setInterval(doppelreim, DOPPELREIM_INTERVALL);
 
 
 
