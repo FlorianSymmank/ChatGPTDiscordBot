@@ -25,6 +25,8 @@ const configuration = new Configuration({
     apiKey: data.GPT_API_KEY
 });
 
+const commands = ["!npc", "magische miesmuschel"];
+
 const openai = new OpenAIApi(configuration);
 
 client.on('ready', () => {
@@ -32,23 +34,64 @@ client.on('ready', () => {
 });
 
 client.on('messageCreate', async (message) => {
-    if (message.author.bot) return;
-    if (!message.content.startsWith("!npc")) return;
 
-    const response = await generateResponse(message.content, data.GPT_API_KEY);
-    message.channel.send(response);
+    if (message.author.bot) return;
+
+    // is command?
+    if (commands.find(cmd => { return message.content.startsWith(cmd) })) {
+
+        if (isUserExcluded(message.author.id)) {
+            sendMessage(message, "NO :clown:");
+            return;
+        }
+
+        let l_msg = message.content.toLowerCase();
+
+        if (l_msg.startsWith("!npc")) {
+            const response = await askNPC(message.content.substring(4));
+            sendMessage(message, response);
+            return;
+        }
+
+        if (l_msg.startsWith("magische miesmuschel")) {
+            const response = await magischeMiesmuschel(message.content.substring(20));
+            sendMessage(message, response);
+            return;
+        }
+    }
 });
 
-async function generateResponse(prompt) {
+
+function isUserExcluded(userID, message) {
+    let excluded = ["227828681618358272"] // stefan
+    return excluded.find(user => { return user === userID });
+}
+
+async function askNPC(prompt) {
+    let messages = [{ "role": "user", "content": prompt }]
+    return await generateResponse(messages);
+}
+
+async function magischeMiesmuschel(prompt) {
+    let messages = [
+        { "role": "system", "content": "Du bist ab jetzt die Magische Miesmuschel aus Spongebob Schwammkopf, halte deine antworten wirklich kurz und variere deine antworten. kannst auch ruhig abgedreht sein!" },
+        { "role": "user", "content": prompt }
+    ]
+    return await generateResponse(messages);
+}
+
+
+async function generateResponse(messages) {
     try {
 
-        let len = 4097 - prompt.length - 1;
-        prompt = prompt.substring(4)
-        
+        let messages_len = messages.map(msg => msg["content"].length).reduce((prev, next) => prev + next);
+
+        let tokens = 4097 - messages_len - 10; // open ai token (syllable) limit
+
         const response = await openai.createChatCompletion({
             model: 'gpt-3.5-turbo',
-            messages: [{ "role": "assistant", "content": prompt }],
-            max_tokens: len,
+            messages: messages,
+            max_tokens: tokens,
             n: 1
         });
 
@@ -58,6 +101,18 @@ async function generateResponse(prompt) {
         console.error('Error generating response:', error.response ? error.response.data : error);
         return 'Sorry, I am unable to generate a response at this time.';
     }
+}
+
+async function sendMessage(message, response) {
+
+    // 2000 chars discord limit
+    while (response.length > 2000) {
+        let partial = response.substring(0, 2000);
+        await message.channel.send(partial);
+        response = response.substring(2000)
+    }
+
+    message.channel.send(response);
 }
 
 client.login(data.DISCORD_BOT_TOKEN);
