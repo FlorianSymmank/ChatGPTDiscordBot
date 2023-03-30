@@ -122,7 +122,7 @@ async function sendMessage(message, response) {
 
 
 async function doppelreim() {
-    let channel = client.channels.cache.get("832958629089902622"); // snek allgemein
+    let channel = client.channels.cache.get("1091092079301644338"); // snek reime-residenz
 
     let messages = [{ "role": "user", "content": "Gib mir ein zusammengesetzes Substantiv (aus maximal aus 2 Wörtern)" }]
     let response = await generateResponse(messages);
