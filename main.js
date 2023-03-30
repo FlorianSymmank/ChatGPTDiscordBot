@@ -74,7 +74,10 @@ async function askNPC(prompt) {
 
 async function magischeMiesmuschel(prompt) {
     let messages = [
-        { "role": "system", "content": "Du bist ab jetzt die Magische Miesmuschel aus Spongebob Schwammkopf, halte deine antworten wirklich kurz und variere deine antworten. kannst auch ruhig abgedreht sein!" },
+        { "role": "system", "content": "Du bist ab jetzt die Magische Miesmuschel aus Spongebob Schwammkopf." },
+        { "role": "system", "content": "Halte deine Antworten kurz und variere sie!" },
+        // { "role": "system", "content": "Kannst auch ruhig abgedreht sein!" },
+        { "role": "system", "content": "Schreibe nicht mehr als 10 Worte!" },
         { "role": "user", "content": prompt }
     ]
     return await generateResponse(messages);
