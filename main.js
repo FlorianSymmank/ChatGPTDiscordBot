@@ -63,7 +63,7 @@ client.on('messageCreate', async (message) => {
 
 
 function isUserExcluded(userID, message) {
-    let excluded = ["227828681618358272"] // stefan
+    let excluded = [] // ["227828681618358272"] // stefan
     return excluded.find(user => { return user === userID });
 }
 
@@ -115,4 +115,27 @@ async function sendMessage(message, response) {
     message.channel.send(response);
 }
 
+
+let letzter_doppelreim = "";
+
+async function doppelreim() {
+    let channel = client.channels.cache.get("832958629089902622"); // snek allgemein
+
+    if (letzter_doppelreim != "") {
+        let messages = [{ "role": "user", "content": `Gib mir 5 Wörter die sich auf ${letzter_doppelreim} reimen` }]
+        let aufloesung_doppelreim = await generateResponse(messages);
+        channel.send(aufloesung_doppelreim);
+    }
+
+    let messages = [{ "role": "user", "content": "Gib mir ein zusammengesetzes Substantiv (aus maximal aus 2 Wörtern)" }]
+    letzter_doppelreim = await generateResponse(messages);
+
+    channel.send(`Hier ist dein Substantiv: ${letzter_doppelreim}`);
+}
+
+
 client.login(data.DISCORD_BOT_TOKEN);
+setInterval(doppelreim, 60 * 60 * 1000); // stunde
+
+
+
