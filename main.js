@@ -25,13 +25,16 @@ const configuration = new Configuration({
     apiKey: data.GPT_API_KEY
 });
 
+
+const FS_DISCORD_ID = "311589715247628289";
 const STUNDE = 60 * 60 * 1000;
 const DOPPELREIM_INTERVALL = 2 * STUNDE;
-const COMMANDS = ["!npc", "magische miesmuschel"];
+const COMMANDS = ["!npc", "magische miesmuschel", "!complete"];
+const CHATHISTORY = {}
+
+const DM_CHANNEL = 1;
 
 const openai = new OpenAIApi(configuration);
-
-const CHATHISTORY = {}
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
@@ -40,6 +43,12 @@ client.on('ready', () => {
 client.on('messageCreate', async (message) => {
 
     if (message.author.bot) return;
+
+    // Discard all dms not by me 
+    if (message.channel.type === DM_CHANNEL) {
+        handleDMs(message)
+        return;
+    }
 
     // is command?
     if (COMMANDS.find(cmd => { return message.content.startsWith(cmd) })) {
@@ -56,12 +65,36 @@ client.on('messageCreate', async (message) => {
             response = await askNPC(message.content.substring(4), message);
         } else if (l_msg.startsWith("magische miesmuschel")) {
             response = await magischeMiesmuschel(message.content.substring(20));
+        } else if (l_msg.startsWith("!complete")) {
+            response = await complete(message.content.substring(9));
         }
 
         sendMessage(message, response);
         return;
     }
 });
+
+async function handleDMs(message) {
+    // jeder der nicht ich ist 
+    if (message.author.id != FS_DISCORD_ID) {
+        sendMessage(message, "Yo bitte nicht direkt anquatschen UwU");
+
+        const user = client.users.cache.get(FS_DISCORD_ID);
+
+        if (!user)
+            return;
+
+        const dmChannel = await user.createDM();
+        dmChannel.send(`${message.author.username} hat mir ne PM gesendet`);
+        return
+    }
+
+    // ich
+    response = await askNPC(message.content, message);
+    sendMessage(message, response);
+
+    return
+}
 
 function isUserExcluded(userID) {
     let excluded = [] // ["227828681618358272"] // stefan
@@ -73,11 +106,11 @@ async function askNPC(prompt, message) {
 
     // letzten 10 nachrichten
     if (CHATHISTORY[message.channelId])
-        messages = CHATHISTORY[message.channelId].slice(-10); 
+        messages = CHATHISTORY[message.channelId].slice(-10);
 
     messages.push({ "role": "user", "content": prompt })
 
-    let response = await generateResponse(messages);
+    let response = await generateChatResponse(messages);
     messages.push({ "role": "assistant", "content": response })
     CHATHISTORY[message.channelId] = messages;
 
@@ -92,16 +125,20 @@ async function magischeMiesmuschel(prompt) {
         { "role": "system", "content": "Schreibe nicht mehr als 10 Worte!" },
         { "role": "user", "content": prompt }
     ]
-    return await generateResponse(messages);
+    return await generateChatResponse(messages);
 }
 
+async function complete(prompt) {
+    return await generateCompletion(prompt)
+}
 
-async function generateResponse(messages) {
+// for chatting
+async function generateChatResponse(messages) {
     try {
 
         let messages_len = messages.map(msg => msg["content"].length).reduce((prev, next) => prev + next);
 
-        let tokens = 4097 - messages_len - 10; // open ai token (syllable) limit
+        let tokens = 4097 - parseInt(messages_len / 3.5) - 50; // open ai token (syllable) limit // one token generally corresponds to ~4 characters of text
 
         const response = await openai.createChatCompletion({
             model: 'gpt-3.5-turbo',
@@ -111,6 +148,27 @@ async function generateResponse(messages) {
         });
 
         return response.data.choices[0].message.content.trim();
+
+    } catch (error) {
+        console.error('Error generating response:', error.response ? error.response.data : error);
+        return 'Sorry, I am unable to generate a response at this time.';
+    }
+}
+
+// for completion tasks
+async function generateCompletion(prompt) {
+    try {
+
+        let tokens = 4097 - parseInt(prompt.length / 3.5) - 50; // open ai token (syllable) limit // one token generally corresponds to ~4 characters of text
+
+        const response = await openai.createCompletion({
+            model: 'text-davinci-003',
+            prompt: prompt,
+            max_tokens: tokens,
+            n: 1
+        });
+
+        return response.data.choices[0].text.trim();
 
     } catch (error) {
         console.error('Error generating response:', error.response ? error.response.data : error);
@@ -135,13 +193,13 @@ async function doppelreim() {
     let channel = client.channels.cache.get("1091092079301644338"); // snek reime-residenz
 
     let messages = [{ "role": "user", "content": "Gib mir ein zusammengesetzes Substantiv (aus maximal aus 2 Wörtern)" }]
-    let response = await generateResponse(messages);
+    let response = await generateChatResponse(messages);
 
     let sentMessage = await channel.send(`Hier ist dein Substantiv: ${response}`);
 
     setTimeout(async () => {
         let messages = [{ "role": "user", "content": `Gib mir 5 Wörter die sich auf ${response} reimen` }]
-        let aufloesung_doppelreim = await generateResponse(messages);
+        let aufloesung_doppelreim = await generateChatResponse(messages);
         sentMessage.reply(aufloesung_doppelreim)
     }, DOPPELREIM_INTERVALL - 2000);
 }
@@ -149,6 +207,3 @@ async function doppelreim() {
 
 client.login(data.DISCORD_BOT_TOKEN);
 setInterval(doppelreim, DOPPELREIM_INTERVALL);
-
-
-
