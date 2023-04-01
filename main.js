@@ -31,6 +31,8 @@ const COMMANDS = ["!npc", "magische miesmuschel"];
 
 const openai = new OpenAIApi(configuration);
 
+const CHATHISTORY = {}
+
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
 });
@@ -48,30 +50,38 @@ client.on('messageCreate', async (message) => {
         }
 
         let l_msg = message.content.toLowerCase();
+        let response;
 
         if (l_msg.startsWith("!npc")) {
-            const response = await askNPC(message.content.substring(4));
-            sendMessage(message, response);
-            return;
+            response = await askNPC(message.content.substring(4), message);
+        } else if (l_msg.startsWith("magische miesmuschel")) {
+            response = await magischeMiesmuschel(message.content.substring(20));
         }
 
-        if (l_msg.startsWith("magische miesmuschel")) {
-            const response = await magischeMiesmuschel(message.content.substring(20));
-            sendMessage(message, response);
-            return;
-        }
+        sendMessage(message, response);
+        return;
     }
 });
 
-
-function isUserExcluded(userID, message) {
+function isUserExcluded(userID) {
     let excluded = [] // ["227828681618358272"] // stefan
     return excluded.find(user => { return user === userID });
 }
 
-async function askNPC(prompt) {
-    let messages = [{ "role": "user", "content": prompt }]
-    return await generateResponse(messages);
+async function askNPC(prompt, message) {
+    let messages = []
+
+    // letzten 10 nachrichten
+    if (CHATHISTORY[message.channelId])
+        messages = CHATHISTORY[message.channelId].slice(-10); 
+
+    messages.push({ "role": "user", "content": prompt })
+
+    let response = await generateResponse(messages);
+    messages.push({ "role": "assistant", "content": response })
+    CHATHISTORY[message.channelId] = messages;
+
+    return response
 }
 
 async function magischeMiesmuschel(prompt) {
@@ -133,7 +143,7 @@ async function doppelreim() {
         let messages = [{ "role": "user", "content": `Gib mir 5 Wörter die sich auf ${response} reimen` }]
         let aufloesung_doppelreim = await generateResponse(messages);
         sentMessage.reply(aufloesung_doppelreim)
-    }, DOPPELREIM_INTERVALL - 2000); 
+    }, DOPPELREIM_INTERVALL - 2000);
 }
 
 
