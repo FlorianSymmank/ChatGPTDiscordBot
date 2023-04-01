@@ -36,6 +36,8 @@ const DM_CHANNEL = 1;
 
 const openai = new OpenAIApi(configuration);
 
+//TODO: log/message me when added to new server to prevent missuse
+
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
 });
