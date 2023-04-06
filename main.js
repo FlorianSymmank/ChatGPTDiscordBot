@@ -145,7 +145,7 @@ async function generateChatResponse(messages) {
         const response = await openai.createChatCompletion({
             model: 'gpt-3.5-turbo',
             messages: messages,
-            max_tokens: tokens,
+            // max_tokens: tokens,
             n: 1
         });
 
@@ -166,7 +166,7 @@ async function generateCompletion(prompt) {
         const response = await openai.createCompletion({
             model: 'text-davinci-003',
             prompt: prompt,
-            max_tokens: tokens,
+            // max_tokens: tokens,
             n: 1
         });
 
