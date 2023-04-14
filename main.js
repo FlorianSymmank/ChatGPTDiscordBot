@@ -26,11 +26,13 @@ const configuration = new Configuration({
 });
 
 
-const FS_DISCORD_ID = "311589715247628289";
 const STUNDE = 60 * 60 * 1000;
 const DOPPELREIM_INTERVALL = 2 * STUNDE;
 const COMMANDS = ["!npc", "magische miesmuschel", "!complete"];
 const CHATHISTORY = {}
+
+let allowedChannels = process.env.ALLOWED_CHANNELS.split(' ');
+let excluded_users = process.env.BANNED_USERS.split(' ');
 
 const DM_CHANNEL = 1;
 
@@ -52,6 +54,9 @@ client.on('messageCreate', async (message) => {
         return;
     }
 
+    if (!allowedChannels.find(x => { return x == message.channel.id }))
+        return;
+    
     // is command?
     if (COMMANDS.find(cmd => { return message.content.startsWith(cmd) })) {
 
@@ -78,10 +83,10 @@ client.on('messageCreate', async (message) => {
 
 async function handleDMs(message) {
     // jeder der nicht ich ist 
-    if (message.author.id != FS_DISCORD_ID) {
+    if (message.author.id != process.env.OWNER_DISCORD_ID) {
         sendMessage(message, "Yo bitte nicht direkt anquatschen UwU");
 
-        const user = client.users.cache.get(FS_DISCORD_ID);
+        const user = client.users.cache.get(process.env.OWNER_DISCORD_ID);
 
         if (!user)
             return;
@@ -99,8 +104,7 @@ async function handleDMs(message) {
 }
 
 function isUserExcluded(userID) {
-    let excluded = [] // ["227828681618358272"] // stefan
-    return excluded.find(user => { return user === userID });
+    return excluded_users.find(user => { return user === userID });
 }
 
 async function askNPC(prompt, message) {
