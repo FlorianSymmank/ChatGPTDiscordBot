@@ -20,8 +20,12 @@ npm install discord.js dotenv openai
 ```makefile
 GPT_API_KEY=your_openai_api_key
 DISCORD_BOT_TOKEN=your_discord_bot_token
+OWNER_DISCORD_ID = your_discord_id
+ALLOWED_CHANNELS = "channelID channelID channelID ..." # seperated by spaces
+BANNED_USERS = "userID userID userID ..."
+
 ```
-Replace `your_openai_api_key` and `your_discord_bot_token` with your actual OpenAI API key and Discord bot token.
+Replace `your_openai_api_key`, `your_discord_bot_token`, `your_discord_id`, `"channelID channelID channelID ..."`, ` "userID userID userID ..."` with your actual OpenAI API key, Discord bot token, DiscordID, channelIds in which the bot may answer and to which users the bot wont respond to
 
 ## Obtaining Tokens
 
