@@ -30,6 +30,7 @@ const STUNDE = 60 * 60 * 1000;
 const DOPPELREIM_INTERVALL = 2 * STUNDE;
 const COMMANDS = ["!npc", "magische miesmuschel", "!complete"];
 const CHATHISTORY = {}
+const 
 
 let allowedChannels = process.env.ALLOWED_CHANNELS.split(' ');
 let excluded_users = process.env.BANNED_USERS.split(' ');
@@ -57,17 +58,16 @@ client.on('messageCreate', async (message) => {
     if (!allowedChannels.find(x => { return x == message.channel.id }))
         return;
     
+    let l_msg = message.content.toLowerCase();
     // is command?
-    if (COMMANDS.find(cmd => { return message.content.startsWith(cmd) })) {
+    if (COMMANDS.find(cmd => { return l_msg.startsWith(cmd) })) {
 
         if (isUserExcluded(message.author.id)) {
             sendMessage(message, "NO :clown:");
             return;
         }
 
-        let l_msg = message.content.toLowerCase();
         let response;
-
         if (l_msg.startsWith("!npc")) {
             response = await askNPC(message.content.substring(4), message);
         } else if (l_msg.startsWith("magische miesmuschel")) {
@@ -82,6 +82,13 @@ client.on('messageCreate', async (message) => {
 });
 
 async function handleDMs(message) {
+
+    if (isUserExcluded(message.author.id)) {
+        sendMessage(message, "NO :clown:");
+        return;
+    }
+
+
     // jeder der nicht ich ist 
     if (message.author.id != process.env.OWNER_DISCORD_ID) {
         sendMessage(message, "Yo bitte nicht direkt anquatschen UwU");
