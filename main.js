@@ -56,7 +56,7 @@ client.on('messageCreate', async (message) => {
 
     if (!allowedChannels.find(x => { return x == message.channel.id }))
         return;
-    
+
     let l_msg = message.content.toLowerCase();
     // is command?
     if (COMMANDS.find(cmd => { return l_msg.startsWith(cmd) })) {
@@ -110,7 +110,13 @@ async function handleDMs(message) {
 }
 
 function isUserExcluded(userID) {
-    return excluded_users.find(user => { return user === userID });
+    let isExcluded = excluded_users.find(user => { return user === userID });
+
+    // crude log
+    if (isExcluded)
+        console.log(`${new Date().toJSON()} Banned Userid ${userID} tried to interact.`)
+
+    return isExcluded
 }
 
 async function askNPC(prompt, message) {
