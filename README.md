@@ -27,6 +27,9 @@ BANNED_USERS = "userID userID userID ..."
 ```
 Replace `your_openai_api_key`, `your_discord_bot_token`, `your_discord_id`, `"channelID channelID channelID ..."`, ` "userID userID userID ..."` with your actual OpenAI API key, Discord bot token, DiscordID, channelIds in which the bot may answer and to which users the bot wont respond to
 
+4. Transfering .env File
+scp -i path_to_your_ssh_key path_to_your_.env_file your_user@your_maschine_ip:~/ChatGPTDiscordBot/.env
+
 ## Obtaining Tokens
 
 ### Discord Bot Token
@@ -43,7 +46,7 @@ Replace `your_openai_api_key`, `your_discord_bot_token`, `your_discord_id`, `"ch
 ## Running the Bot
 1. Start the bot by running:
 ```css
-node main.js
+nohup node main.js &
 ```
 2. Invite the bot to your Discord server using the invite link provided by the Discord Developer Portal.
 
