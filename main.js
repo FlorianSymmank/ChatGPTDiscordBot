@@ -30,7 +30,6 @@ const STUNDE = 60 * 60 * 1000;
 const DOPPELREIM_INTERVALL = 2 * STUNDE;
 const COMMANDS = ["!npc", "magische miesmuschel", "!complete"];
 const CHATHISTORY = {}
-const 
 
 let allowedChannels = process.env.ALLOWED_CHANNELS.split(' ');
 let excluded_users = process.env.BANNED_USERS.split(' ');
