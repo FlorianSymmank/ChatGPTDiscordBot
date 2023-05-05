@@ -159,7 +159,7 @@ async function generateChatResponse(messages) {
         let tokens = 4097 - parseInt(messages_len / 3.5) - 50; // open ai token (syllable) limit // one token generally corresponds to ~4 characters of text
 
         const response = await openai.createChatCompletion({
-            model: 'gpt-3.5-turbo',
+            model: 'gpt-4',
             messages: messages,
             // max_tokens: tokens,
             n: 1
