@@ -247,8 +247,8 @@ async function doppelreim() {
     let sentMessage = await channel.send(`Hier ist dein Substantiv: ${response}`);
 
     setTimeout(async () => {
-        let messages = [{ "role": "user", "content": `Gib mir 5 Wörter die sich auf ${response} reimen` }]
-        let aufloesung_doppelreim = await generateChatResponse(messages);
+        let prompt = [{ "role": "user", "content": `Gib mir ein paar Wörter die sich auf '${response}' reimen. Kein Teil des Wortes '${response}' sollte im Reim Vorkommen` }]
+        let aufloesung_doppelreim = await generateChatResponse(prompt);
         sentMessage.reply(aufloesung_doppelreim)
     }, DOPPELREIM_INTERVALL - 2000);
 }
