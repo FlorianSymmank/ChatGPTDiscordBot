@@ -12,9 +12,11 @@ jobs:
     - name: Send greeting
       run: echo "Hello"
     - name: ree
+      env:
+        HOST: ${{ secrets.HOST }}
       run: |
         ls -lla
         touch text.txt
-        cat ${{ secrets.host }} > text.txt
+        echo $HOST > text.txt
         ls -lla
         cat text.txt
