@@ -19,4 +19,5 @@ jobs:
         touch text.txt
         echo $HOST > text.txt
         ls -lla
+        echo "cat text.txt" 
         cat text.txt
