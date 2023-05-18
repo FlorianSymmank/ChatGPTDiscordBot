@@ -11,4 +11,9 @@ jobs:
     - uses: actions/checkout@v1
     - name: Send greeting
       run: echo "Hello"
-    
+    - name: ree
+      run: |
+        ls -lla
+        "ABC" > text.txt
+        ls -lla
+        cat text.txt
