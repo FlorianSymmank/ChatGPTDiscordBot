@@ -209,7 +209,7 @@ async function generateImage(prompt) {
 
         const response = await openai.createImage({
             prompt: prompt,
-            n: 3,
+            n: 1,
             size: "1024x1024",
         });
 
