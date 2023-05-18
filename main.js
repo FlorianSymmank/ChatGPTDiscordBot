@@ -28,7 +28,7 @@ const configuration = new Configuration({
 
 const STUNDE = 60 * 60 * 1000;
 const DOPPELREIM_INTERVALL = 2 * STUNDE;
-const COMMANDS = ["!npc", "magische miesmuschel", "!complete"];
+const COMMANDS = ["!npc", "magische miesmuschel", "!complete", "!image"];
 const CHATHISTORY = {}
 
 let allowedChannels = process.env.ALLOWED_CHANNELS.split(' ');
@@ -46,9 +46,9 @@ client.on('ready', async () => {
     try {
         const user = await client.users.fetch(process.env.OWNER_DISCORD_ID);
         user.send(":rocket: Meister ich bin wieder Online! :rocket:");
-      } catch (error) {
+    } catch (error) {
         console.error('Error sending DM:', error);
-      }
+    }
 
 });
 
@@ -74,8 +74,6 @@ client.on('messageCreate', async (message) => {
             sendMessage(message, "NO :clown:");
             return;
         }
-
-
         let response;
         if (l_msg.startsWith("!npc")) {
             response = await askNPC(message.content.substring(4), message);
@@ -83,8 +81,11 @@ client.on('messageCreate', async (message) => {
             response = await magischeMiesmuschel(message.content.substring(20));
         } else if (l_msg.startsWith("!complete")) {
             response = await complete(message.content.substring(9));
+        } else if (l_msg.startsWith("!image")) {
+            response = await generateImage(message.content.substring(6));
         }
 
+        sendMessage(message, response);
         return;
     }
 });
@@ -196,6 +197,27 @@ async function generateCompletion(prompt) {
         });
 
         return response.data.choices[0].text.trim();
+
+    } catch (error) {
+        console.error('Error generating response:', error.response ? error.response.data : error);
+        return 'Sorry, I am unable to generate a response at this time.';
+    }
+}
+
+async function generateImage(prompt) {
+    try {
+
+        const response = await openai.createImage({
+            prompt: prompt,
+            n: 3,
+            size: "1024x1024",
+        });
+
+        let res = ""
+        for (let url of response.data.data)
+            res += url["url"] + "\n"
+
+        return res
 
     } catch (error) {
         console.error('Error generating response:', error.response ? error.response.data : error);
