@@ -250,7 +250,7 @@ async function doppelreim() {
         let prompt = [{ "role": "user", "content": `Gib mir ein paar Wörter die sich auf '${response}' reimen. Kein Teil des Wortes '${response}' sollte im Reim Vorkommen` }]
         let aufloesung_doppelreim = await generateChatResponse(prompt);
         sentMessage.reply(aufloesung_doppelreim)
-    }, DOPPELREIM_INTERVALL - 2000);
+    }, DOPPELREIM_INTERVALL - 30_000);
 }
 
 
