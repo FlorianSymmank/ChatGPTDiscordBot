@@ -45,11 +45,11 @@ client.on('ready', async () => {
 
     try {
         const user = await client.users.fetch(process.env.OWNER_DISCORD_ID);
-        user.send(':rocket: Meister ich bin wieder Online! :rocket:');
+        user.send(":rocket: Meister ich bin wieder Online! :rocket:");
       } catch (error) {
         console.error('Error sending DM:', error);
       }
-:rocket: 
+
 });
 
 client.on('messageCreate', async (message) => {
