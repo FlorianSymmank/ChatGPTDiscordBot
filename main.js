@@ -40,14 +40,16 @@ const openai = new OpenAIApi(configuration);
 
 //TODO: log/message me when added to new server to prevent missuse
 
-client.on('ready', () => {
+client.on('ready', async () => {
     console.log(`Logged in as ${client.user.tag}!`);
 
     const user = client.users.cache.get(process.env.OWNER_DISCORD_ID);
-    
-    if (user)
-        user.createDM().send(`Meister ich bin wieder Online`);
 
+    if (!user)
+        return;
+
+    const dmChannel = await user.createDM();
+    dmChannel.send(`${message.author.username} hat mir ne PM gesendet`);
 });
 
 client.on('messageCreate', async (message) => {
