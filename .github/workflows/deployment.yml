@@ -17,5 +17,6 @@ jobs:
         port: 22
         script: |
           cd ${{ secrets.TARGET }}
-          touch abc.de
-        
+          git pull
+          sudo pkill -f "node main.js"
+          nohub node main.js &
