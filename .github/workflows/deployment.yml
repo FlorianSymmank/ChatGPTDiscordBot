@@ -8,7 +8,8 @@ jobs:
   create_ssh:
     runs-on: ubuntu-latest
     steps:
-    - name: test ssh connection
+    - name: deploy
+      continue-on-error: true
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.HOST }}
@@ -19,3 +20,4 @@ jobs:
           cd ${{ secrets.TARGET }}
           sudo pkill -f "node main.js"
           git pull
+          nohup node main.js &
