@@ -18,6 +18,5 @@ jobs:
         port: 22
         script: |
           cd ${{ secrets.TARGET }}
-          sudo pkill -f "node main.js"
           git pull
           nohup node main.js &
