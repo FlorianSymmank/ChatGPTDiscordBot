@@ -14,6 +14,6 @@ jobs:
     - name: ree
       run: |
         ls -lla
-        "ABC" > text.txt
+        cat '{{ secret.host }}' > text.txt
         ls -lla
         cat text.txt
