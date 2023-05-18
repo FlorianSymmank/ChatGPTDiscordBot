@@ -1,0 +1,14 @@
+name: Deployment
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  create_ssh:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Send greeting
+      run: echo "Hello"
+    
