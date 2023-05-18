@@ -43,13 +43,13 @@ const openai = new OpenAIApi(configuration);
 client.on('ready', async () => {
     console.log(`Logged in as ${client.user.tag}!`);
 
-    const user = client.users.cache.get(process.env.OWNER_DISCORD_ID);
+    try {
+        const user = await client.users.fetch(process.env.OWNER_DISCORD_ID);
+        user.send('Meister ich bin wieder Online!');
+      } catch (error) {
+        console.error('Error sending DM:', error);
+      }
 
-    if (!user)
-        return;
-
-    const dmChannel = await user.createDM();
-    dmChannel.send(`${message.author.username} hat mir ne PM gesendet`);
 });
 
 client.on('messageCreate', async (message) => {
