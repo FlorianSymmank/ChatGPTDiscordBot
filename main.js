@@ -69,10 +69,12 @@ client.on('messageCreate', async (message) => {
     // is command?
     if (COMMANDS.find(cmd => { return l_msg.startsWith(cmd) })) {
 
+        await message.channel.sendTyping();
         if (isUserExcluded(message.author.id)) {
             sendMessage(message, "NO :clown:");
             return;
         }
+
 
         let response;
         if (l_msg.startsWith("!npc")) {
@@ -83,18 +85,17 @@ client.on('messageCreate', async (message) => {
             response = await complete(message.content.substring(9));
         }
 
-        sendMessage(message, response);
         return;
     }
 });
 
 async function handleDMs(message) {
 
+    await message.channel.sendTyping();
     if (isUserExcluded(message.author.id)) {
         sendMessage(message, "NO :clown:");
         return;
     }
-
 
     // jeder der nicht ich ist 
     if (message.author.id != process.env.OWNER_DISCORD_ID) {
