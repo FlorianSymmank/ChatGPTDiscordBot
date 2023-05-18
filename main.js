@@ -42,6 +42,12 @@ const openai = new OpenAIApi(configuration);
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
+
+    const user = client.users.cache.get(process.env.OWNER_DISCORD_ID);
+    
+    if (user)
+        user.createDM().send(`Meister ich bin wieder Online`);
+
 });
 
 client.on('messageCreate', async (message) => {
