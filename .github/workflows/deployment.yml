@@ -19,4 +19,4 @@ jobs:
           cd ${{ secrets.TARGET }}
           git pull
           sudo pkill -f "node main.js"
-          nohub node main.js &
+          nohup node main.js &
