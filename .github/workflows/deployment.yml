@@ -8,21 +8,13 @@ jobs:
   create_ssh:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - name: Send greeting
-      run: echo "Hello"
-    - name: deploy
-      env:
-        $SSH_KEY: ${{ secrets.SSH_KEY }}
-      run: |
-        touch key
-        echo $SSH_KEY > key
-        chmod 400 key
-        ls -lla
-        cat key
-        ssh -o StrictHostKeyChecking=no -i key root@164.92.203.56 "
-        git clone https://github.com/FlorianSymmank/ChatGPTDiscordBot
-        npm install
-        nohup node main.js &
-        "
+    - name: test ssh connection
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: root
+        key: ${{ secrets.SSH_KEY }}
+        port: 22
+        script: |
+          touch abc.de
         
