@@ -76,7 +76,7 @@ client.on('messageCreate', async (message) => {
         }
         let response;
         if (l_msg.startsWith("!npc")) {
-            response = await askNPC(message.content.substring(4), message);
+            await askNPC(message.content.substring(4), message);
         } else if (l_msg.startsWith("magische miesmuschel")) {
             response = await magischeMiesmuschel(message.content.substring(20));
         } else if (l_msg.startsWith("!complete")) {
@@ -85,7 +85,8 @@ client.on('messageCreate', async (message) => {
             response = await generateImage(message.content.substring(6));
         }
 
-        sendMessage(message, response);
+        if (response)
+            sendMessage(message, response);
         return;
     }
 });
@@ -112,10 +113,7 @@ async function handleDMs(message) {
         return
     }
 
-    // ich
-    response = await askNPC(message.content, message);
-    sendMessage(message, response);
-
+    askNPC(message.content, message);
     return
 }
 
@@ -138,12 +136,38 @@ async function askNPC(prompt, message) {
 
     messages.push({ "role": "user", "content": prompt })
 
-    let response = await generateChatResponse(messages);
-    messages.push({ "role": "assistant", "content": response })
-    CHATHISTORY[message.channelId] = messages;
+    let previous_msg = null
+    let isDone = false
 
-    return response
+    let msgQ = [];
+    let completeMsg = "";
+
+    let id = setInterval(async () => {
+
+        curr = msgQ.slice();
+        msgQ = []
+
+        text = curr.join('')
+        completeMsg += text;
+
+        if (isDone) {
+            clearInterval(id)
+            messages.push({ "role": "assistant", "content": completeMsg })
+            CHATHISTORY[message.channelId] = messages;
+        }
+
+        previous_msg = await streamMessage(message.channel, text, previous_msg)
+
+    }, 1000)
+
+    out = async (text, done) => {
+        msgQ.push(text)
+        isDone = done
+    }
+
+    streamGenerateChatResponse(messages, out);
 }
+
 
 async function magischeMiesmuschel(prompt) {
     let messages = [
@@ -153,6 +177,7 @@ async function magischeMiesmuschel(prompt) {
         { "role": "system", "content": "Schreibe nicht mehr als 10 Worte!" },
         { "role": "user", "content": prompt }
     ]
+
     return await generateChatResponse(messages);
 }
 
@@ -163,15 +188,9 @@ async function complete(prompt) {
 // for chatting
 async function generateChatResponse(messages) {
     try {
-
-        let messages_len = messages.map(msg => msg["content"].length).reduce((prev, next) => prev + next);
-
-        let tokens = 4097 - parseInt(messages_len / 3.5) - 50; // open ai token (syllable) limit // one token generally corresponds to ~4 characters of text
-
         const response = await openai.createChatCompletion({
             model: 'gpt-4',
             messages: messages,
-            // max_tokens: tokens,
             n: 1
         });
 
@@ -183,16 +202,48 @@ async function generateChatResponse(messages) {
     }
 }
 
+async function streamGenerateChatResponse(messages, out) {
+    try {
+        const res = await openai.createChatCompletion({
+            model: 'gpt-3.5-turbo',
+            messages: messages,
+            stream: true,
+            n: 1
+        }, { responseType: 'stream' });
+
+
+        res.data.on('data', data => {
+            const lines = data.toString().split('\n').filter(line => line.trim() !== '');
+            for (const line of lines) {
+                const message = line.replace(/^data: /, '');
+                if (message === '[DONE]') {
+                    out("", true)
+                    return;
+                }
+
+                try {
+                    text = JSON.parse(message).choices[0].delta.content
+                    if (text != undefined)
+                        out(text, false)
+                } catch (error) {
+                    console.error('Could not JSON parse stream message', message, error);
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error('Error generating response:', error.response ? error.response.data : error);
+        return 'Sorry, I am unable to generate a response at this time.';
+    }
+}
+
 // for completion tasks
 async function generateCompletion(prompt) {
     try {
 
-        let tokens = 4097 - parseInt(prompt.length / 3.5) - 50; // open ai token (syllable) limit // one token generally corresponds to ~4 characters of text
-
         const response = await openai.createCompletion({
             model: 'text-davinci-003',
             prompt: prompt,
-            // max_tokens: tokens,
             n: 1
         });
 
@@ -225,6 +276,26 @@ async function generateImage(prompt) {
     }
 }
 
+async function streamMessage(channel, text, previous_msg) {
+
+    if (!text)
+        return previous_msg
+
+    if (previous_msg == null)
+        return await channel.send(text)
+
+    text = previous_msg.content + text
+
+    if (text.length > 2000) {
+        let msg = text.substring(0, 2000)
+        await previous_msg.edit(msg)
+        msg = text.substring(2000)
+        return await channel.send(msg)
+    }
+    else
+        return await previous_msg.edit(text)
+}
+
 async function sendMessage(message, response) {
 
     // 2000 chars discord limit
@@ -233,7 +304,6 @@ async function sendMessage(message, response) {
         await message.channel.send(partial);
         response = response.substring(2000)
     }
-
     message.channel.send(response);
 }
 
