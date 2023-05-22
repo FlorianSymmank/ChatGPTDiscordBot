@@ -1,4 +1,4 @@
-name: Deployment
+name: stop_bot
 on:
   workflow_dispatch:
 
