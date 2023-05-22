@@ -1,0 +1,16 @@
+name: Deployment
+on:
+  workflow_dispatch:
+
+jobs:
+  stop:
+    runs-on: ubuntu-latest
+    steps:
+    - name: stop
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: root
+        key: ${{ secrets.SSH_KEY }}
+        port: 22
+        script: pm2 stop
