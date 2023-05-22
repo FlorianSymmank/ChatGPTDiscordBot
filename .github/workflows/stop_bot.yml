@@ -13,4 +13,4 @@ jobs:
         username: root
         key: ${{ secrets.SSH_KEY }}
         port: 22
-        script: pm2 stop
+        script: pm2 stop fs_discord_bot
