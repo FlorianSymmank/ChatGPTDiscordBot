@@ -1,11 +1,12 @@
 name: Deployment
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
 
 jobs:
-  create_ssh:
+  deploy:
     runs-on: ubuntu-latest
     steps:
     - name: deploy
