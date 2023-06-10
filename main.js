@@ -160,20 +160,20 @@ async function complete(prompt) {
     return await generateCompletion(prompt)
 }
 
+
 // for chatting
-async function generateChatResponse(messages) {
+async function generateChatResponse(messages, options = null) {
     try {
 
-        let messages_len = messages.map(msg => msg["content"].length).reduce((prev, next) => prev + next);
+        if (options == null) {
+            options = {
+                model: 'gpt-4',
+                messages: messages,
+                n: 1
+            }
+        }
 
-        let tokens = 4097 - parseInt(messages_len / 3.5) - 50; // open ai token (syllable) limit // one token generally corresponds to ~4 characters of text
-
-        const response = await openai.createChatCompletion({
-            model: 'gpt-4',
-            messages: messages,
-            // max_tokens: tokens,
-            n: 1
-        });
+        const response = await openai.createChatCompletion(options);
 
         return response.data.choices[0].message.content.trim();
 
@@ -241,8 +241,16 @@ async function sendMessage(message, response) {
 async function doppelreim() {
     let channel = client.channels.cache.get("1091092079301644338"); // snek reime-residenz
 
-    let messages = [{ "role": "user", "content": "Gib mir ein zusammengesetzes Substantiv (aus maximal aus 2 Wörtern)" }]
-    let response = await generateChatResponse(messages);
+    let messages = [{ "role": "user", "content": "Gib mir ein interessantes Wort auf das man gut reimen kann." }]
+
+    let option = {
+        model: 'gpt-4',
+        messages: messages,
+        temperature: 1.6,
+        n: 1
+    }
+
+    let response = await generateChatResponse(messages, option);
 
     let sentMessage = await channel.send(`Hier ist dein Substantiv: ${response}`);
 
@@ -253,6 +261,12 @@ async function doppelreim() {
     }, DOPPELREIM_INTERVALL - 30_000);
 }
 
+async function startDoppelreim() {
+    await new Promise(r => setTimeout(r, 2000));
+    doppelreim()
+    setInterval(doppelreim, DOPPELREIM_INTERVALL);
+}
 
-client.login(data.DISCORD_BOT_TOKEN);
-setInterval(doppelreim, DOPPELREIM_INTERVALL);
+client.login(data.DISCORD_BOT_TOKEN).then((data) => {
+    startDoppelreim()
+})
