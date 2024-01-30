@@ -32,6 +32,7 @@ const COMMANDS = ["!npc", "magische miesmuschel", "!complete", "!image"];
 const CHATHISTORY = {}
 
 let allowedChannels = process.env.ALLOWED_CHANNELS.split(' ');
+let allowed_ids_for_dms = process.env.ALLOWED_IDS_FOR_DM.split(' ');
 let excluded_users = process.env.BANNED_USERS.split(' ');
 
 const DM_CHANNEL = 1;
@@ -99,7 +100,7 @@ async function handleDMs(message) {
     }
 
     // jeder der nicht ich ist 
-    if (message.author.id != process.env.OWNER_DISCORD_ID) {
+    if (!allowed_ids_for_dms.includes(message.author.id)) {
         sendMessage(message, "Yo bitte nicht direkt anquatschen UwU");
 
         const user = client.users.cache.get(process.env.OWNER_DISCORD_ID);
