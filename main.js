@@ -209,6 +209,8 @@ async function generateImage(prompt) {
     try {
 
         const response = await openai.createImage({
+            model: "dall-e-3",
+            quality: "hd",
             prompt: prompt,
             n: 1,
             size: "1024x1024",
