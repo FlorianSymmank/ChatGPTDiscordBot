@@ -1,12 +1,9 @@
-name: Deployment
+name: restart
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - master
 
 jobs:
-  deploy:
+  restart:
     runs-on: ubuntu-latest
     steps:
     - name: restart
