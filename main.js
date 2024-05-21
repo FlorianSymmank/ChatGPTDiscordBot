@@ -168,7 +168,7 @@ async function generateChatResponse(messages, options = null) {
 
         if (options == null) {
             options = {
-                model: 'gpt-4',
+                model: 'gpt-4o',
                 messages: messages,
                 n: 1
             }
@@ -247,7 +247,7 @@ async function doppelreim() {
     let messages = [{ "role": "user", "content": "Gib mir ein interessantes Wort auf das man gut reimen kann." }]
 
     let option = {
-        model: 'gpt-4',
+        model: 'gpt-4o',
         messages: messages,
         temperature: 1.6,
         n: 1
