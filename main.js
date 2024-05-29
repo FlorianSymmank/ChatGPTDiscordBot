@@ -1,3 +1,7 @@
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
+
 require('dotenv').config();
 
 const {
@@ -219,6 +223,8 @@ async function generateImage(prompt) {
         let res = ""
         for (let url of response.data.data)
             res += url["url"] + "\n"
+        
+        saveImage(res)
 
         return res
 
@@ -269,6 +275,38 @@ async function startDoppelreim() {
     doppelreim()
     setInterval(doppelreim, DOPPELREIM_INTERVALL);
 }
+
+async function saveImage(url) {
+
+    const imagesDir = path.join(__dirname, 'images');
+    const fileName = `${Date.now()}.jpg`;
+    const filePath = path.join(imagesDir, fileName);
+
+    if (!fs.existsSync(imagesDir)) {
+        fs.mkdirSync(imagesDir);
+    }
+
+    https.get(url, (response) => {
+        if (response.statusCode !== 200) {
+            console.error(`Fehler: Statuscode ${response.statusCode}`);
+            return;
+        }
+
+        const file = fs.createWriteStream(filePath);
+
+        response.pipe(file);
+
+        file.on('finish', () => {
+            file.close(() => {
+                console.log(`Download finished (${filePath}).`);
+            });
+        });
+
+    }).on('error', (err) => {
+        console.error(`Fehler: ${err.message}`);
+    });
+}
+
 
 client.login(data.DISCORD_BOT_TOKEN).then((data) => {
     startDoppelreim()
