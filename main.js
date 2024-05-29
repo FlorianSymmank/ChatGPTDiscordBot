@@ -35,7 +35,7 @@ let allowedChannels = process.env.ALLOWED_CHANNELS.split(' ');
 let allowed_ids_for_dms = process.env.ALLOWED_IDS_FOR_DM.split(' ');
 let excluded_users = process.env.BANNED_USERS.split(' ');
 
-const DM_CHANNEL = 1; 
+const DM_CHANNEL = 1;
 
 const openai = new OpenAIApi(configuration);
 
