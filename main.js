@@ -271,7 +271,7 @@ async function doppelreim() {
     let option = {
         model: 'gpt-4o',
         messages: messages,
-        temperature: 1.6,
+        temperature: 1.0,
         n: 1
     }
 
