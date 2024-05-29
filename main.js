@@ -211,13 +211,29 @@ async function generateCompletion(prompt) {
 
 async function generateImage(prompt) {
     try {
+        
+        let style = "vivid"
+        
+        let styles = ["vivid", "natural"]
 
+        for(let s of styles){
+            let tag = `style:${s}`
+            if(prompt.includes(tag)){
+                style = s;
+                prompt = prompt.replace(tag, "");
+                break;
+            }
+        }
+
+        prompt = prompt.trim();
+       
         const response = await openai.createImage({
             model: "dall-e-3",
             quality: "hd",
             prompt: prompt,
             n: 1,
             size: "1024x1024",
+            style: style
         });
 
         let res = ""
