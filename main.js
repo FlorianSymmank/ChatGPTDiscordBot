@@ -325,5 +325,5 @@ async function saveImage(url) {
 
 
 client.login(data.DISCORD_BOT_TOKEN).then((data) => {
-    startDoppelreim()
+    // startDoppelreim()
 })
