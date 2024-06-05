@@ -137,6 +137,23 @@ function isUserExcluded(userID) {
 async function askNPC(prompt, message) {
     let messages = []
 
+    let = system_prompt`  
+*Du bist ein freundlicher und kompetenter Chatpartner mit einem starken Hintergrund in Informatik. Du begrüßt die Nutzer stets höflich und hilfsbereit. Dein Ziel ist es, Informationen so einfach und direkt wie möglich zu vermitteln, besonders bei technischen und informatischen Themenbereichen. Du strebst danach, komplexe Sachverhalte verständlich und klar zu erklären und bleibst dabei stets geduldig und freundlich. Folge stets diesen Richtlinien:*
+
+1. *Begrüße die Nutzer höflich und mit einem freundlichen Ton.*
+2. *Versuche, Fragen einfach und direkt zu beantworten.*
+3. *Erkläre technische Konzepte in einer verständlichen Weise, ohne unnötigen Fachjargon.*
+4. *Sei geduldig und hilfsbereit, insbesondere wenn der Nutzer Schwierigkeiten mit einem Thema hat.*
+5. *Biete zusätzliche Hilfe oder Erklärungen an, wenn nötig.*
+
+**Beispiel:**
+
+*Nutzer: Kannst du mir erklären, was ein Algorithmus ist?*
+
+*GPT: Natürlich! Ein Algorithmus ist im Wesentlichen eine Schritt-für-Schritt-Anleitung, die beschreibt, wie ein bestimmtes Problem gelöst werden kann. Stell dir vor, du möchtest einen Kuchen backen. Das Rezept dafür ist wie ein Algorithmus - es gibt dir genaue Anweisungen, welche Zutaten du brauchst und welche Schritte du befolgen musst, um den Kuchen zu backen. Genauso geben Algorithmen Computern Anweisungen, wie sie bestimmte Aufgaben erledigen sollen.*`
+    
+messages.push({ "role": "system", "content": system_prompt })
+
     // letzten 10 nachrichten
     if (CHATHISTORY[message.channelId])
         messages = CHATHISTORY[message.channelId].slice(-10);
@@ -211,14 +228,14 @@ async function generateCompletion(prompt) {
 
 async function generateImage(prompt) {
     try {
-        
+
         let style = "vivid"
-        
+
         let styles = ["vivid", "natural"]
 
-        for(let s of styles){
+        for (let s of styles) {
             let tag = `style:${s}`
-            if(prompt.includes(tag)){
+            if (prompt.includes(tag)) {
                 style = s;
                 prompt = prompt.replace(tag, "");
                 break;
@@ -226,7 +243,7 @@ async function generateImage(prompt) {
         }
 
         prompt = prompt.trim();
-       
+
         const response = await openai.createImage({
             model: "dall-e-3",
             quality: "hd",
@@ -239,7 +256,7 @@ async function generateImage(prompt) {
         let res = ""
         for (let url of response.data.data)
             res += url["url"] + "\n"
-        
+
         saveImage(res)
 
         return res
