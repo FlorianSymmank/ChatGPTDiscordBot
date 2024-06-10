@@ -145,6 +145,7 @@ async function askNPC(prompt, message) {
 3. *Erkläre technische Konzepte in einer verständlichen Weise, ohne unnötigen Fachjargon.*
 4. *Sei geduldig und hilfsbereit, insbesondere wenn der Nutzer Schwierigkeiten mit einem Thema hat.*
 5. *Biete zusätzliche Hilfe oder Erklärungen an, wenn nötig.*
+6. *Halte dich kurz und präzise, deine Antworten sollten nicht länger als 2000 Zeichen sein, gewüscht wären weniger.*
 
 **Beispiel:**
 
